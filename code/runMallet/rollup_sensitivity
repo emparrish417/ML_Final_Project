@@ -1,0 +1,55 @@
+import os
+import csv
+
+lang_eng_both_a99 = 0
+lang_eng_both_b99 = 0
+lang_eng_langdetect_a99 = 0
+lang_eng_langdetect_b99 = 0
+lang_eng_none = 0
+lang_eng_clem = 0
+total = 0
+
+path = r'E:\subthreshold\sensitivity'
+
+for dirpath, subdir, files in os.walk(path):
+    for file in files:
+        if "langCheck.csv" in file:
+            with open(path + "\\" + file) as csv_file:
+                print(path + "\\" + file)
+                csv_reader = csv.reader(csv_file, delimiter=',')
+                header = next(csv_reader)
+                for row in csv_reader:
+                    total += 1
+                    if row[3] == "1" and row[4] == "0":
+                        lang_eng_clem += 1
+                    elif row[3] == "0" and row[4] == "0":
+                        lang_eng_none += 1
+                    elif row[3] == "1" and row[4] == "1":
+                        if float(row[2]) >= 0.99:
+                            lang_eng_both_a99 += 1
+                        else:
+                            lang_eng_both_b99 += 1
+
+                    elif row[3] == "0" and row[4] == "1":
+                        if float(row[2]) >= 0.99:
+                            lang_eng_langdetect_a99 += 1
+                        else:
+                            lang_eng_langdetect_b99 += 1
+
+                    else:
+                        print(row)
+
+print("Clem = Non-Engl, Langdetect = Engl, Conf >= 0.99: " + str(lang_eng_langdetect_a99) + ", percent: " + str((lang_eng_langdetect_a99/total)*100))
+print("Clem = Non-Engl, Langdetect = Engl, Conf < 0.99: " + str(lang_eng_langdetect_b99) + ", percent: " + str((lang_eng_langdetect_b99/total)*100))
+
+print("Clem = Engl, Langdetect = Engl, Conf >= 0.99: " + str(lang_eng_both_a99) + ", percent: " + str((lang_eng_both_a99/total)*100))
+print("Clem = Engl, Langdetect = Engl, Conf < 0.99: " + str(lang_eng_both_b99) + ", percent: " + str((lang_eng_both_b99/total)*100))
+
+print("Clem = Engl, Langdetect = Non-Engl: " + str(lang_eng_clem) + ", percent: " + str((lang_eng_clem/total)*100))
+print("Clem and Langdetect = Non-Engl: " + str(lang_eng_none) + ", percent: " + str((lang_eng_none/total)*100))
+print("Total: " + str(total))
+
+print("\n\n")
+
+print("Total Added: " + str(lang_eng_langdetect_a99 + lang_eng_langdetect_b99 + lang_eng_both_b99 + lang_eng_both_a99 + lang_eng_clem + lang_eng_none))
+
